@@ -1,0 +1,194 @@
+# Security Configuration for Archie
+authentication:
+  enabled: true
+  methods:
+    - "jwt"
+    - "api_key"
+  
+  jwt:
+    secret: "${JWT_SECRET}"
+    algorithm: "HS256"
+    expiration: 3600  # 1 hour
+    refresh_enabled: true
+    refresh_expiration: 86400  # 24 hours
+  
+  api_key:
+    header: "X-API-Key"
+    query_param: "api_key"
+    length: 32
+    
+authorization:
+  enabled: true
+  roles:
+    - name: "admin"
+      permissions: ["*"]
+    - name: "user"
+      permissions: 
+        - "voice:use"
+        - "automation:view"
+        - "automation:create"
+        - "memory:query"
+    - name: "guest"
+      permissions:
+        - "voice:use"
+        - "automation:view"
+
+rate_limiting:
+  enabled: true
+  global:
+    requests_per_minute: 60
+    burst_size: 20
+  
+  endpoints:
+    "/api/voice/transcribe":
+      requests_per_minute: 30
+      burst_size: 10
+    "/api/automation/execute":
+      requests_per_minute: 10
+      burst_size: 5
+    "/api/memory/store":
+      requests_per_minute: 100
+      burst_size: 50
+
+encryption:
+  enabled: true
+  algorithm: "AES-256-GCM"
+  key: "${SECRET_KEY}"
+  
+  # Data at rest
+  database:
+    enabled: true
+    key_rotation_days: 90
+  
+  # Data in transit
+  tls:
+    enabled: true
+    version: "1.2"
+    ciphers:
+      - "ECDHE-RSA-AES256-GCM-SHA384"
+      - "ECDHE-RSA-AES128-GCM-SHA256"
+      - "ECDHE-RSA-AES256-SHA384"
+      - "ECDHE-RSA-AES128-SHA256"
+
+network_security:
+  firewall:
+    enabled: true
+    rules:
+      - port: 8080
+        protocol: "tcp"
+        allow: ["172.20.0.0/16"]
+      - port: 8123
+        protocol: "tcp"
+        allow: ["172.20.0.0/16"]
+      - port: 5678
+        protocol: "tcp"
+        allow: ["172.20.0.0/16"]
+      - port: 1883
+        protocol: "tcp"
+        allow: ["172.20.0.0/16"]
+  
+  cors:
+    enabled: true
+    origins:
+      - "http://localhost:3000"
+      - "http://archie.local"
+      - "http://ha.local"
+      - "http://n8n.local"
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    headers: ["Content-Type", "Authorization", "X-API-Key"]
+
+input_validation:
+  enabled: true
+  max_request_size: "10MB"
+  max_file_size: "5MB"
+  allowed_file_types:
+    - "audio/wav"
+    - "audio/mp3"
+    - "audio/flac"
+    - "text/plain"
+    - "application/json"
+  
+  sanitization:
+    enabled: true
+    html_escape: true
+    sql_injection_protection: true
+    xss_protection: true
+
+audit_logging:
+  enabled: true
+  log_file: "/opt/archie/data/logs/security_audit.log"
+  events:
+    - "authentication_success"
+    - "authentication_failure"
+    - "authorization_failure"
+    - "rate_limit_exceeded"
+    - "sensitive_data_access"
+    - "configuration_change"
+    - "system_startup"
+    - "system_shutdown"
+  
+  retention_days: 365
+  alerting:
+    enabled: true
+    threshold_failures: 5
+    time_window: 300  # 5 minutes
+    notification_channels:
+      - "telegram"
+      - "email"
+
+secrets_management:
+  provider: "environment"
+  rotation:
+    enabled: true
+    schedule: "0 2 1 * *"  # First day of each month at 2 AM
+  
+  validation:
+    enabled: true
+    min_length: 16
+    complexity_requirements:
+      - "uppercase"
+      - "lowercase"
+      - "digits"
+      - "special_chars"
+
+privacy:
+  data_retention:
+    voice_recordings: 7  # days
+    chat_logs: 30  # days
+    automation_logs: 90  # days
+    memory_data: 365  # days
+  
+  anonymization:
+    enabled: true
+    pii_detection: true
+    auto_redaction: true
+  
+  gdpr_compliance:
+    enabled: true
+    data_export: true
+    data_deletion: true
+    consent_tracking: true
+
+monitoring:
+  security_metrics:
+    enabled: true
+    prometheus_endpoint: "/metrics/security"
+  
+  intrusion_detection:
+    enabled: true
+    failed_login_threshold: 5
+    suspicious_activity_patterns:
+      - "multiple_failed_auth"
+      - "unusual_request_patterns"
+      - "privilege_escalation_attempts"
+  
+  vulnerability_scanning:
+    enabled: true
+    schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+    auto_update: true
+
+backup_security:
+  encryption: true
+  verification: true
+  off_site: true
+  retention_policy: "3-2-1"  # 3 copies, 2 different media, 1 off-site

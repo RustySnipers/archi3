@@ -1,0 +1,70 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "rules/*.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Archie Core metrics
+  - job_name: 'archie_core'
+    static_configs:
+      - targets: ['archie_core:8001']
+    scrape_interval: 10s
+    metrics_path: /metrics
+
+  # Home Assistant metrics
+  - job_name: 'homeassistant'
+    static_configs:
+      - targets: ['homeassistant:8123']
+    scrape_interval: 30s
+    metrics_path: /api/prometheus
+
+  # n8n metrics
+  - job_name: 'n8n'
+    static_configs:
+      - targets: ['n8n:5678']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # LocalAI metrics
+  - job_name: 'localai'
+    static_configs:
+      - targets: ['localai:8080']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # ChromaDB metrics
+  - job_name: 'chromadb'
+    static_configs:
+      - targets: ['chromadb:8000']
+    scrape_interval: 30s
+    metrics_path: /api/v1/metrics
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+    scrape_interval: 30s
+
+  # System metrics
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9100']
+    scrape_interval: 15s
+
+  # Docker metrics
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['host.docker.internal:9323']
+    scrape_interval: 15s

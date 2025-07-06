@@ -1,0 +1,91 @@
+# Archie Configuration Template
+# Copy this file to configs/archie_config.yaml and customize
+
+# IMPORTANT: Replace all ${VARIABLE} placeholders with actual values
+# or set them as environment variables
+
+# Basic System Configuration
+system:
+  name: "Archie"
+  timezone: "America/New_York"  # Change to your timezone
+  language: "en"
+  
+# API Keys and Secrets (USE ENVIRONMENT VARIABLES)
+# Set these in your .env file or environment
+secrets:
+  localai_api_key: "${LOCALAI_API_KEY}"
+  homeassistant_token: "${HOMEASSISTANT_TOKEN}"
+  n8n_api_key: "${N8N_API_KEY}"
+  telegram_bot_token: "${TELEGRAM_BOT_TOKEN}"
+  telegram_chat_id: "${TELEGRAM_CHAT_ID}"
+  mqtt_password: "${MQTT_PASSWORD}"
+  jwt_secret: "${JWT_SECRET}"
+  secret_key: "${SECRET_KEY}"
+
+# Voice Configuration
+voice:
+  enabled: true
+  wake_word: "archie"  # Change to your preferred wake word
+  
+  # Microphone settings (adjust based on your hardware)
+  audio:
+    device_index: null  # null for default, or specify device index
+    sample_rate: 16000
+    chunk_size: 1024
+
+# Smart Home Integration
+homeassistant:
+  enabled: true
+  # Areas in your home (customize these)
+  areas:
+    - "living_room"
+    - "kitchen"
+    - "bedroom"
+    - "office"
+    - "bathroom"
+    - "garage"
+
+# Communication Settings
+telegram:
+  enabled: true
+  notifications: true
+  commands: true
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  
+  # Optional S3 backup (comment out if not using)
+  s3:
+    bucket: "${BACKUP_S3_BUCKET}"
+    region: "${BACKUP_S3_REGION}"
+    access_key: "${BACKUP_S3_ACCESS_KEY}"
+    secret_key: "${BACKUP_S3_SECRET_KEY}"
+
+# Monitoring (optional)
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+  health_check:
+    enabled: true
+
+# Custom Workflow Templates
+workflow_templates:
+  - name: "morning_routine"
+    description: "Execute morning routine tasks"
+    triggers:
+      - type: "time"
+        value: "07:00"  # Change to your preferred time
+      - type: "voice"
+        value: "good morning"
+    
+  - name: "evening_routine"
+    description: "Execute evening routine tasks"
+    triggers:
+      - type: "time"
+        value: "22:00"  # Change to your preferred time
+      - type: "voice"
+        value: "good night"

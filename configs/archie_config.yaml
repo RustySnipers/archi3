@@ -1,0 +1,210 @@
+# Archie Main Configuration
+system:
+  name: "Archie"
+  version: "1.0.0"
+  timezone: "America/New_York"
+  language: "en"
+  debug: false
+
+# Core AI Settings
+ai:
+  provider: "localai"
+  model: "gpt-4"
+  temperature: 0.7
+  max_tokens: 4096
+  context_window: 8192
+  memory_limit: 1000
+  
+# LocalAI Configuration
+localai:
+  url: "http://localai:8080"
+  api_key: "${LOCALAI_API_KEY}"
+  models:
+    chat: "gpt-4"
+    embedding: "text-embedding-ada-002"
+    whisper: "whisper-1"
+  
+# Voice Settings
+voice:
+  enabled: true
+  wake_word: "archie"
+  wake_word_sensitivity: 0.5
+  
+  # Speech to Text
+  stt:
+    provider: "whisper"
+    model: "small.en"
+    language: "en"
+    energy_threshold: 4000
+    pause_threshold: 0.8
+    
+  # Text to Speech
+  tts:
+    provider: "piper"
+    voice: "en_US-lessac-medium"
+    speed: 1.0
+    volume: 0.8
+    
+  # Audio Settings
+  audio:
+    sample_rate: 16000
+    chunk_size: 1024
+    channels: 1
+    device_index: null
+
+# Memory and Knowledge Base
+memory:
+  provider: "chromadb"
+  url: "http://chromadb:8000"
+  collection_name: "archie_memory"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  max_memories: 10000
+  retention_days: 365
+
+# Home Assistant Integration
+homeassistant:
+  enabled: true
+  url: "http://homeassistant:8123"
+  token: "${HOMEASSISTANT_TOKEN}"
+  websocket_enabled: true
+  discovery_enabled: true
+  areas:
+    - "living_room"
+    - "kitchen"
+    - "bedroom"
+    - "office"
+
+# n8n Workflow Engine
+n8n:
+  enabled: true
+  url: "http://n8n:5678"
+  api_key: "${N8N_API_KEY}"
+  webhook_url: "http://n8n:5678/webhook"
+  auto_workflow_generation: true
+
+# MQTT Configuration
+mqtt:
+  enabled: true
+  broker: "mosquitto"
+  port: 1883
+  username: "archie"
+  password: "${MQTT_PASSWORD}"
+  topics:
+    commands: "archie/commands"
+    responses: "archie/responses"
+    status: "archie/status"
+    notifications: "archie/notifications"
+
+# Telegram Bot
+telegram:
+  enabled: true
+  bot_token: "${TELEGRAM_BOT_TOKEN}"
+  chat_id: "${TELEGRAM_CHAT_ID}"
+  notifications: true
+  commands: true
+
+# Security Settings
+security:
+  jwt_secret: "${JWT_SECRET}"
+  session_timeout: 3600
+  rate_limit:
+    enabled: true
+    requests_per_minute: 60
+    burst_size: 20
+  
+  encryption:
+    enabled: true
+    key: "${SECRET_KEY}"
+    algorithm: "AES-256-GCM"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  file: "/opt/archie/data/logs/archie.log"
+  max_size: "10MB"
+  backup_count: 5
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Component-specific logging
+  components:
+    voice: "INFO"
+    memory: "INFO"
+    homeassistant: "INFO"
+    n8n: "INFO"
+    mcp: "DEBUG"
+    agents: "INFO"
+
+# Monitoring and Health
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    port: 8001
+    path: "/metrics"
+  
+  health_check:
+    enabled: true
+    port: 8002
+    path: "/health"
+    interval: 30
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention_days: 30
+  destinations:
+    - type: "local"
+      path: "/opt/archie/data/backups"
+    - type: "s3"
+      bucket: "${BACKUP_S3_BUCKET}"
+      region: "${BACKUP_S3_REGION}"
+      access_key: "${BACKUP_S3_ACCESS_KEY}"
+      secret_key: "${BACKUP_S3_SECRET_KEY}"
+
+# Agent Configuration
+agents:
+  max_concurrent: 5
+  default_timeout: 300
+  retry_attempts: 3
+  
+  # Agent types
+  types:
+    - name: "voice_agent"
+      enabled: true
+      priority: 1
+    - name: "automation_agent"
+      enabled: true
+      priority: 2
+    - name: "communication_agent"
+      enabled: true
+      priority: 3
+    - name: "memory_agent"
+      enabled: true
+      priority: 4
+
+# Workflow Templates
+workflow_templates:
+  - name: "morning_routine"
+    description: "Execute morning routine tasks"
+    triggers:
+      - type: "time"
+        value: "07:00"
+      - type: "voice"
+        value: "good morning"
+    
+  - name: "evening_routine"
+    description: "Execute evening routine tasks"
+    triggers:
+      - type: "time"
+        value: "22:00"
+      - type: "voice"
+        value: "good night"
+    
+  - name: "weather_update"
+    description: "Provide weather updates"
+    triggers:
+      - type: "voice"
+        value: "weather"
+      - type: "schedule"
+        value: "0 8 * * *"
